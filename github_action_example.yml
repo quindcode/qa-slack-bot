@@ -1,0 +1,26 @@
+# Ejemplo de configuración para tus repositorios de GitHub Actions
+# Añade este paso al final de tu job de pruebas
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      # ... tus pasos de ejecución de pruebas ...
+
+      - name: Reportar resultado al Slack Bot
+        if: always() # Para que se ejecute tanto si pasa como si falla
+        run: |
+          curl -X POST https://qa-salck-bot.vercel.app/api/report \
+          -H "Content-Type: application/json" \
+          -d '{
+            "repo": "${{ github.event.repository.name }}",
+            "suite": "HealthCheck", 
+            "status": "${{ job.status }}",
+            "run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+            "channel_id": "C0123456789"
+          }'
+          
+# Notas:
+# 1. Reemplaza "https://qa-salck-bot.vercel.app/api/report" por tu URL (o la de ngrok para local).
+# 2. El "channel_id" es el ID del canal de Slack donde quieres los reportes (o el nombre del canal público).
+# 3. GitHub provee automáticamente las variables de contexto como ${{ github.event.repository.name }}.
