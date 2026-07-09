@@ -1,0 +1,25 @@
+name: QA Automated Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize] # Se activa cuando abren un PR o cuando suben nuevos commits al PR
+
+jobs:
+  gemini-reviewer:
+    name: Gemini QA Code Reviewer
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write       # OBLIGATORIO: Permite a la acción escribir comentarios y sugerencias en el PR
+      contents: read             # OBLIGATORIO: Permite leer el código del commit para analizarlo
+
+    steps:
+      # Step 1: Descarga el código del Pull Request hacia la máquina virtual temporal
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Step 2: Llama a tu acción que acabamos de compilar y subir a Github
+      - name: Run Gemini Reviewer Action
+        uses: quindcode/orbit-qa@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}      # Se genera automáticamente en cada ejecución
+          gemini-api-key: ${{ secrets.GEMINI_API_KEY }}  # La clave API que agregaste en el Paso 1
